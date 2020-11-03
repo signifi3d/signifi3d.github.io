@@ -1,0 +1,65 @@
+
+/*body {
+	display: inline;
+}*/
+/*#content {
+	background-color: grey;
+}*/
+ul {
+	list-style-type: none;
+}
+#mapid { 
+	height: 100%;
+	width: 100%;
+}
+#map {
+	height: 60%;
+	background-color: grey;
+}
+.spacer {
+	float: left;
+	width: 15%;
+}
+#content-block {
+	width: 70%;
+	float: left;	
+}
+
+#header {
+	padding-top : 25px;
+	padding-bottom: 5px;
+	border-bottom: 1px solid black;
+	margin-bottom: 10px;
+}
+#title {
+	font-family: "Verdana"; 
+	font-size: 2.5em;
+}
+#subtitle {
+	font-size:.75em;
+}
+
+#menu {
+	float: right;
+}
+.menu-item {
+	display:inline;
+	padding-right:10px;
+}
+.menu-link{
+}
+a.menu-link:link {
+	color: black;
+	text-decoration: none;
+}
+a.menu-link:visited {
+	color: gray;
+	text-decoration: none;
+}
+a.menu-link:hover {
+	color: black;
+	text-decoration: underline;
+}
+a.menu-link:active {
+	text-decoration: underline;
+}

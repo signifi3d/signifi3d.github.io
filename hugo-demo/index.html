@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA==" crossorigin="" />
+		<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js" integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+   crossorigin=""></script>
+		<link rel="stylesheet" href="style.css?version=4" />
+		<script src="mapconfig.js?v=14"></script>
+		<style>
+			.filter-list {
+				display:inline;
+				float: left;
+			}
+		</style>
+		<title> Hugo </title>
+	</head>
+	<body>
+		<div class="spacer">&nbsp; </div>
+		<div id="content-block">
+			<div id="header">
+				<span id="title">Hugo</span>
+				<span id="subtitle">A Portland Health Inspection Map</span>
+				<ul id="menu">
+					<li class="menu-item"><a href="index.html" class="menu-link">Map</a></li>
+				</ul>
+			</div>
+			<div id="map">
+				<div id="mapid"></div>
+			</div>
+			<div id="content">
+				<form>
+					<ul class="filter-list">
+						<span>Facility Types:</span>
+						<li><input type="checkbox" name="restaurant" checked>Restaurant</li>
+						<li><input type="checkbox" name="class4"  checked><abbr title="These mobile food units may serve a full menu.">Class 4</abbr></li>
+						<li><input type="checkbox" name="class3"  checked><abbr title="These mobile food units may serve any food item allowed under Class I and II mobile food units, and may cook, prepare and assemble food items on the unit. However, cooking of raw animal foods on the unit is not allowed">Class 3</abbr></li>
+						<li><input type="checkbox" name="class2"><abbr title="These mobile food units may serve foods allowed under Class I and provide hot and cold holding display areas from which unpackaged foods are displayed. Self-service by customers of unpackaged foods is not allowed. Preparation, assembly or cooking of foods is not allowed on the unit">Class 2</abbr></li>
+						<li><input type="checkbox" name="class1"><abbr title="These mobile food units can serve only intact, packaged foods and non-potentially hazardous drinks. No preparation or assembly of foods or beverages may take place on the unit. Non-potentially hazardous beverages must be provided from covered urns or dispenser heads only. No dispensed ice is allowed">Class 1</abbr></li>	
+						<li><input type="checkbox" name="Vending">Vending</li>	
+						<li><input type="checkbox" name="Commissary">Commissary</li>	
+						<li><input type="checkbox" name="Warehouse">Warehouse</li>	
+						<li><input type="checkbox" name="Food-B&B">Food-B&B</li>	
+					</ul>
+					<ul class="filter-list">
+						<span>Status:</span>
+						<li><input type="checkbox" name="permitted"  checked>Permitted</li>
+						<li><input type="checkbox" name="surveillance"  checked>Surveillance</li>
+						<li><input type="checkbox" name="pending">Pending</li>
+						<li><input type="checkbox" name="enforcement">Enforcement</li>
+						<li><input type="checkbox" name="additional">Awaiting Additional Information</li>
+						<li><input type="checkbox" name="outofbusiness" >Out Of Business</li>
+					</ul>
+					<ul class="filter-list">
+						<span>Score Range: </span><br />
+						<li>Min:<input type="number" name="min-score" min="0" max="100" value="0"></li>
+						<li>Max:<input type="number" name="max-score" min="0" max="100" value="100"></li>
+						<li><input type="checkbox" name="exclude-no-score"> Exclude facilities with no score</li>
+						<span>Color By: </span><br />
+						<li><input type="radio" name="color-by" value="avg_score" checked>Average Score</li>
+						<li><input type="radio" name="color-by" value="last_score">Last Score</li>
+						<li>Filter By Name: </li>
+						<li><input type="text" name="name-search"></li>
+					</ul>
+					<input type="submit" value="Apply Filters" >
+				</form>
+				<script type="text/javascript">
+					$("form").submit(reloadMap);
+				</script>
+			</div>
+		</div>
+		<div class="spacer">&nbsp; </div>
+		<script type="text/javascript">
+			loadMap();
+		</script>
+
+	</body>
+</html>
