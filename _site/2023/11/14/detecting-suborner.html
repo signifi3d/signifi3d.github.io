@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Detecting Suborner</title>
+    <link rel="stylesheet" href="/css/main.css">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+  <h1>Blake Eakin</h1>
+  <p>The views and opinions expressed here are not my employer's. I'm actually not certain they're my own either.</p>
+  <nav class="menu">
+  <ul>
+    <li><a href="/index">Stuff I've Done</a></li>
+    <li><h4>Blog Posts</h4></li>
+    <ul>
+      
+        <li><a href="/2023/11/14/detecting-suborner.html">Detecting Suborner</a></li>
+      
+    </ul>
+  </ul>
+</nav>
+
+
+</div>
+
+      <div class="content">
+        <article class="post">
+  <header class="post-header">
+    <div class="title">
+      <h1>Detecting Suborner</h1>
+      <h2></h2>
+    </div>
+    <div class="meta">
+      <time class="published" datetime="2023-11-14T08:30:00-08:00">November 14, 2023</time>
+    </div>
+  </header>
+  <section class="content">
+    <p>In the constant quest for <del>the fountain of youth</del> detection coverage I am frequently <del>stealing</del> reviewing the work of others. During one such recent dive, I found a lovely wiki page on the <a href="https://github.com/last-byte/PersistenceSniper/wiki/3---Detections">Persistence Sniper</a> repo devoted to explaining and providing sources for the various persistence procedures it seeks out. It contains a buffet of the usual registry suspects, scheduled tasks, service creations, etc. But one that caught my eye, and must have somehow got lost in the firehose of constant security news, was the <a href="https://r4wsec.com/notes/the_suborner_attack/">Suborner Technique</a>.      <br />
+<br /></p>
+<h3 id="what-does-it-do">What does it do?</h3>
+
+<p>Released by the same Windows authorization explorer that brought us <a href="https://r4wsec.com/notes/rid_hijacking/index.html">RID Hijacking</a>, Sebastian Castro (<a href="https://infosec.exchange/@r4wd3r">@r4wd3r</a>), this technique promises to provide an invisible account for persistent access. Or, at least, a hard to see one that doesn’t generate typical Windows Security Auditing events like id <a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4720">4720</a>.</p>
+
+<p><br />
+It depends on a mix including a built-in behavior to hide accounts with a dollar sign in the name, RID Hijacking, and good ol’ SYSTEM permissions. Particularly, it creates a new machine account without calling any account-specific API calls by directly creating and editing keys in the SAM registry, thus the SYSTEM permissions. And this will be what I take particular interest in: the registry activity.</p>
+
+<p><br />
+This is a very shallow look at a fun technique. Please check out the original blog post linked above to get a full understanding of what this does under the hood.</p>
+
+<p><br /></p>
+<h3 id="what-do-we-see">What do we see?</h3>
+<p>Based on the article and browsing the source code, I am hypothesizing that the key to this detection will be the registry activity in the <code class="language-plaintext highlighter-rouge">HKLM\SAM\SAM\Domains\Accounts\Users\Names</code> key. Those sorts of events can be monitored using <a href="https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon">Sysmon</a> ids 12 or 13 and also potentially with registry auditing events like ids <a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4663">4663</a> and <a href="https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4657">4657</a>, but I’ll be mostly focusing on the Sysmon events.</p>
+
+<p><br />
+Searching across historical baseline data for any activity interestingly, even just in the SAM registry, doesn’t return any hits. This means one of two things to me: Events around these registry keys are suspicious enough on their own or I have a visibility problem with the available telemetry. So, let’s try it out in the lab and see.</p>
+
+<p><br />
+The POC works exactly as advertised, and as simply as downloading the latest release and running it as SYSTEM. Then, sure enough, this is what we see (Note: I sort time ascending):</p>
+
+<p><br />
+<img src="/images/suborner.png" alt="Suborner Records" /></p>
+
+<p><br /></p>
+<h3 id="what-do-we-do">What do we do?</h3>
+<p>Let’s walk through some of the possible detections available here. With the related process creation event we can see the relevant executable and the parameters used. Detecting on any of these would likely be the weakest of detections. Executable names and hashes can be easily changed and the parameter names both aren’t weak enough and aren’t necessarily required for execution, so they make a bad signature of usage. On top of this, we are only looking at execution of a POC. This process could be built into custom tools and the technique could possibly even be executed using LOLBins.</p>
+
+<p><br />
+Up next we actually have a rather interesting set of events where the Suborner POC writes a txt file in the <code class="language-plaintext highlighter-rouge">C:\Windows\Tasks</code> directory and then imports the contents of it into the registry using <code class="language-plaintext highlighter-rouge">regedit.exe</code>. It seems obvious that @r4wd3r didn’t want the POC itself to be too stealthy, because this alone should trip alarms. Possible detections would include auditing file creations in <code class="language-plaintext highlighter-rouge">C:\Windows\Tasks</code>, especially from suspicious executables, and regedit silent imports. The weakness of these detections in this case would be that it’s entirely possible to perform this technique without using <code class="language-plaintext highlighter-rouge">regedit.exe</code> or writing a file at all, much less in <code class="language-plaintext highlighter-rouge">C:\Windows\Tasks</code>. One also might want to detect the naming pattern used as well ([username][RID])  if specifically trying to target usage of the POC, but this wouldn’t be difficult to change.</p>
+
+<p><br />
+This finally leaves us with the registry events I anticipated earlier, <code class="language-plaintext highlighter-rouge">regedit.exe</code> creating and setting values in <code class="language-plaintext highlighter-rouge">HKLM\SAM\SAM\Domains\Account\Users</code>. It proves that we do have visibility into events around these keys, and the rarity of it suggests it as a low false positive detection. Good job everyone, let’s go home. Right?</p>
+
+<p><br />
+I was bothered by something. Why do I only see this activity and nothing else with these registry keys? Surely something else is doing something with them. I reviewed my Sysmon config, based off the <a href="https://github.com/SwiftOnSecurity/sysmon-config/blob/master/sysmonconfig-export.xml">SwiftOnSecurity sysmon config</a>, and what I found was that this registry key wasn’t covered by the RegistryEvent includes, but any activity from <code class="language-plaintext highlighter-rouge">regedit.exe</code> was. So, the only reason I was even able to see these events was because they happened to use regedit, which isn’t necessary to execute the technique.</p>
+
+<p><br />
+After remedying my Sysmon config, I caught more events related to the Suborner activity. Following regedit we see the Suborner binary setting values in the same keys as well. I also found more events surrounding this key from <code class="language-plaintext highlighter-rouge">lsass.exe</code>, so I added that as an exclusion in the config as well. It could be argued that I would then lose visibility to someone using this technique in some code injected into lsass, but that’s an edge case I’m willing to risk and leave to other detections. Otherwise, auditing suspicious process access to <code class="language-plaintext highlighter-rouge">HKLM\SAM\SAM\Domains\Account\Users</code> should suffice as an effective detection that may require minor tuning depending on what’s normal in your environment.</p>
+
+  </section>
+</article>
+
+
+      </div>
+      <div class="margin"></div>
+    </div>
+  </body>
+</html>
+

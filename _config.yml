@@ -1,0 +1,14 @@
+title: Blake Eakin 
+email: bwe0011@gmail.com
+description: >- # this means to ignore newlines until "baseurl:"
+  The views and opinions expressed here are not my employer's.
+  I'm actually not certain they're my own either.
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
+
+# Build settings
+markdown: kramdown
+theme: minima
+plugins:
+  - jekyll-feed
+

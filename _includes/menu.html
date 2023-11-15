@@ -1,0 +1,12 @@
+<nav class="menu">
+  <ul>
+    <li><a href="/index">Stuff I've Done</a></li>
+    <li><h4>Blog Posts</h4></li>
+    <ul>
+      {% for post in site.posts %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </ul>
+</nav>
+
