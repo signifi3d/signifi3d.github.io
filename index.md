@@ -5,7 +5,7 @@ title: Stuff I've Done
 
 ## Things I Said Elsewhere
 <a id="writing"></a>
-- <a href="https://www.connectwise.com/en-au/blog/cybersecurity/former-darkside-ransomware-affiliate-distributing-trojanized-installers-via-malvertising>Former DarkSide ransomware affiliate distributing trojanized installers via malvertising</a>
+- <a href="https://www.connectwise.com/en-au/blog/cybersecurity/former-darkside-ransomware-affiliate-distributing-trojanized-installers-via-malvertising">Former DarkSide ransomware affiliate distributing trojanized installers via malvertising</a>
 - Reviewing Qakbot Loader Sequences: Parts <a href="https://www.connectwise.com/blog/cybersecurity/reviewing-qakbot-loader-sequences-part-1">1</a>, <a href="https://www.connectwise.com/blog/cybersecurity/reviewing-qakbot-loader-sequences-part-2">2</a>, <a href="https://www.connectwise.com/blog/cybersecurity/reviewing-qakbot-loader-sequences-part-3">3</a>, <a href="https://www.connectwise.com/blog/cybersecurity/reviewing-qakbot-loader-sequences-part-4"> 4</a>
 - <a href="https://www.connectwise.com/blog/threat-report/smash-jacker">SmashJacker Analysis</a>
 - <a href="https://www.connectwise.com/resources/chrome-extension-banking-trojan">Chrome Extension Banking Trojan Targeting Mexico</a>
